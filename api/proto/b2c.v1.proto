@@ -1,0 +1,502 @@
+syntax = "proto3";
+
+package gidyon.mpesa.b2c;
+
+option go_package = "github.com/gidyon/mpesab2c/pkg/api/b2c/v1;b2c_v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/api/field_behaviour.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info : {title : "B2C Mpesa Service";
+description : "B2C APi for mpesa" version : "v1";
+contact : {
+name:
+  "Github <Gideon Kamau>";
+url:
+  "https://bitbucket.org/gideonkamau/mpesab2c/main/api/proto/b2c.v1.proto";
+email:
+  "gideonhacer@gmail.com";
+};
+license : {
+name:
+  "GNU GENERAL PUBLIC LICENSE";
+url:
+  "https://github.com/gidyon/mpesapayments/src/master/LICENSE";
+};
+}
+;
+schemes : HTTP;
+schemes : HTTPS;
+consumes : "application/json";
+produces : "application/json";
+security_definitions : {
+security : {
+key:
+  "bearer" value : {
+  type:
+    TYPE_API_KEY
+  in:
+    IN_HEADER
+  name:
+    "Authorization"
+    description : "Authentication token, prefixed by Bearer: Bearer <token>"
+  }
+}
+}
+security : {
+security_requirement : {
+key:
+  "bearer"
+}
+}
+}
+;
+
+service B2CV1 {
+  // Transfer funds from business to customer
+  rpc TransferFunds(TransferFundsRequest) returns (TransferFundsResponse) {
+    option (google.api.http) = {
+      post : "/b2c/v1:transferFunds"
+      body : "*"
+    };
+  };
+
+  // Retrieves a single b2c payment resource
+  rpc GetB2CPayment(GetB2CPaymentRequest) returns (B2CPayment) {
+    option (google.api.http) = {
+      get : "/b2c/v1/{payment_id}"
+    };
+  };
+
+  // Retrieves a collection of b2c payments
+  rpc ListB2CPayments(ListB2CPaymentsRequest)
+      returns (ListB2CPaymentsResponse) {
+    option (google.api.http) = {
+      get : "/b2c/v1"
+    };
+  };
+
+  // Processes b2c payment updating its status
+  rpc ProcessB2CPayment(ProcessB2CPaymentRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : "/b2c/v1:processB2CPayment"
+      body : "*"
+    };
+  };
+
+  // Publishes b2c payment to consumers
+  rpc PublishB2CPayment(PublishB2CPaymentRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : "/b2c/v1:publishB2CPayment"
+      body : "*"
+    };
+  };
+
+  // Retrieves a collection of statistics
+  rpc ListDailyStats(ListDailyStatsRequest) returns (StatsResponse) {
+    option (google.api.http) = {
+      post : "/b2c/v1:listDailyStats"
+      body : "*"
+    };
+  };
+
+  // Queries for query transaction
+  rpc QueryTransactionStatus(QueryTransactionStatusRequest)
+      returns (QueryResponse) {
+    option (google.api.http) = {
+      post : "/b2c/v1:queryTransactionStatus"
+      body : "*"
+    };
+  };
+
+  // Queries for account balance
+  rpc QueryAccountBalance(QueryAccountBalanceRequest)
+      returns (QueryAccountBalanceResponse) {
+    option (google.api.http) = {
+      post : "/b2c/v1:queryAccountBalance"
+      body : "*"
+    };
+  };
+
+  // Reverses an mpesa transaction
+  rpc ReverseTransaction(ReverseTransactionRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : "/b2c/v1:reverseTransaction"
+      body : "*"
+    };
+  };
+}
+
+enum CommandId {
+  COMMANDID_UNSPECIFIED = 0;
+  SALARY_PAYMENT = 1;
+  BUSINESS_PAYMENT = 2;
+  PROMOTION_PAYMENT = 3;
+}
+
+message TransferFundsRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "TransferFundsRequest"
+      description : "Request to transfer funds b2c from business to customer"
+    }
+  };
+
+  string initiator_id = 1 [ (google.api.field_behavior) = REQUIRED ];
+  string initiator_customer_reference = 2;
+  string initiator_customer_names = 3;
+  string msisdn = 4 [ (google.api.field_behavior) = REQUIRED ];
+  double amount = 5 [ (google.api.field_behavior) = REQUIRED ];
+  string short_code = 6 [ (google.api.field_behavior) = REQUIRED ];
+  string remarks = 7 [ (google.api.field_behavior) = REQUIRED ];
+  string occassion = 8 [ (google.api.field_behavior) = REQUIRED ];
+  CommandId command_id = 9;
+  bool publish = 10;
+  PublishInfo publish_message = 11;
+}
+
+message TransferFundsResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "TransferFundsResponse"
+      description : "Response after TransferFunds request"
+    }
+  };
+
+  bool progress = 1;
+  string message = 2;
+}
+
+message PublishMessage {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "PublishMessage"
+      description : "Published stk message to consumers"
+    }
+  };
+
+  uint64 transaction_id = 1;
+  string initiator_id = 2;
+  string mpesa_receipt_id = 3;
+  string msisdn = 4;
+  PublishInfo publish_info = 5;
+  B2CPayment payment = 6;
+}
+
+message PublishInfo {
+  bool only_on_success = 1;
+  string channel_name = 2;
+  map<string, string> payload = 3;
+}
+
+enum B2CStatus {
+  B2C_STATUS_UNKNOWN = 0;
+  B2C_REQUEST_FAILED = 1;
+  B2C_REQUEST_SUBMITED = 2;
+  B2C_SUCCESS = 3;
+  B2C_FAILED = 4;
+}
+
+message B2CPayment {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "B2CPayment"
+      description : "Mpesa B2C payment details"
+    }
+  };
+
+  uint64 transaction_id = 1;
+  string initiator_id = 2;
+  string initiator_customer_reference = 3;
+  string initiator_customer_names = 4;
+  string org_short_code = 5;
+  CommandId command_id = 6;
+  string msisdn = 7;
+  float amount = 8;
+  string conversation_id = 9;
+  string original_conversation_id = 10;
+  string b2c_response_description = 11;
+  string b2c_response_code = 12;
+  string b2c_result_description = 13;
+  string b2c_result_code = 14;
+  string receiver_party_public_name = 15;
+  string mpesa_receipt_id = 16;
+  float working_account_funds = 17;
+  float utility_account_funds = 18;
+  float mpesa_charges = 19;
+  float system_charges = 20;
+  bool recipient_registered = 21;
+  B2CStatus b2c_status = 22;
+  string source = 23;
+  string tag = 24;
+  bool succeeded = 25;
+  bool processed = 26;
+  int64 transaction_timestamp = 27;
+  string create_date = 28;
+}
+
+enum B2CPaymentView {
+  B2CPAYMENT_BASIC_VIEW = 0;
+  B2CPAYMENT_MINIMAL_VIEW = 1;
+  B2CPAYMENT_ID_ONLY_VIEW = 2;
+}
+
+message GetB2CPaymentRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "GetB2CPaymentRequest"
+      description : "Request to retrieve a b2c payment"
+      required : [ "payment_id" ]
+    }
+  };
+
+  string payment_id = 1 [ (google.api.field_behavior) = REQUIRED ];
+  bool is_mpesa_id = 2;
+  B2CPaymentView view = 3;
+}
+
+enum B2COrderField {
+  B2C_ORDER_FIELD_UNSPECIFIED = 0;
+  B2C_PAYMENT_ID = 1;
+  B2C_TRANSACTION_TIMESTAMP = 2;
+}
+
+enum B2CProcessedState {
+  B2C_PROCESS_STATE_UNSPECIFIED = 0;
+  B2C_PROCESSED = 1;
+  B2C_NOT_PROCESSED = 2;
+}
+
+message ListB2CPaymentFilter {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ListB2CPaymentFilter"
+      description : "Filter for querying b2c payments"
+    }
+  };
+
+  string tx_date = 1;
+  repeated string msisdns = 2;
+  repeated string mpesa_receipts = 3;
+  repeated string initiator_ids = 4;
+  repeated string initiator_customer_references = 5;
+  repeated string initiator_transaction_references = 6;
+  repeated string short_codes = 7;
+  repeated B2CStatus b2c_statuses = 8;
+  B2CProcessedState process_state = 9;
+  int64 start_timestamp = 10;
+  int64 end_timestamp = 11;
+  B2COrderField order_field = 12;
+}
+
+message ListB2CPaymentsRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ListB2CPaymentsRequest"
+      description : "Request to retrieve a collection of b2c payments"
+    }
+  };
+
+  string page_token = 1;
+  int32 page_size = 2;
+  B2CPaymentView view = 3;
+  ListB2CPaymentFilter filter = 4;
+}
+
+message ListB2CPaymentsResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ListB2CPaymentsResponse"
+      description : "Reponse containing a collection of b2c payments"
+    }
+  };
+
+  string next_page_token = 1;
+  repeated B2CPayment b2c_payments = 2;
+  int64 collection_count = 3;
+}
+
+message ProcessB2CPaymentRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ProcessB2CPaymentRequest"
+      description : "Request to update b2c payment processed state"
+    }
+  };
+
+  string payment_id = 1 [ (google.api.field_behavior) = REQUIRED ];
+  bool processed = 2;
+}
+
+message PublishB2CPaymentRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "PublishB2CPaymentRequest"
+      description : "Request to publish a b2c payment"
+    }
+  };
+
+  PublishMessage publish_message = 1 [ (google.api.field_behavior) = REQUIRED ];
+  B2CProcessedState processed_state = 2;
+}
+
+message DailyStat {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "DailyStat"
+      description : "Statistics for a day b2c transactions"
+    }
+  };
+
+  string stat_id = 1;
+  string date = 2;
+  string org_short_code = 3;
+  int32 total_transactions = 4;
+  int64 successful_transactions = 5;
+  int64 failed_transactions = 6;
+  float total_amount_transacted = 7;
+  float total_charges = 8;
+  int64 create_time_seconds = 9;
+  int64 update_time_seconds = 10;
+}
+
+message StatsResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "StatsResponse"
+      description : "Response containing multiple statistics"
+    }
+  };
+
+  repeated DailyStat stats = 1;
+  string next_page_token = 2;
+}
+
+message ListStatsFilter {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ListStatsFilter"
+      description : "Filter criteria for listing statistics"
+    }
+  };
+
+  repeated string organization_short_codes = 1;
+  int64 start_time_seconds = 2;
+  int64 end_time_seconds = 3;
+  repeated string tx_dates = 4;
+}
+
+message ListDailyStatsRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ListStatsRequest"
+      description : "Request to retrieve statistics"
+    }
+  };
+
+  string page_token = 1;
+  int32 page_size = 2;
+  ListStatsFilter filter = 3;
+}
+
+message QueryTransactionStatusRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "QueryTransactionStatusRequest"
+      description : "Request to query transaction status"
+    }
+  };
+
+  enum IdentifierType {
+    QUERY_TRANSACTION_UNSPECIFIED = 0;
+    MSISDN = 1;
+    TILL_NUMBER = 2;
+    ORGANIZATION_SHORT_CODE = 3;
+  }
+
+  IdentifierType identifier_type = 1 [ (google.api.field_behavior) = REQUIRED ];
+  int64 party_a = 2 [ (google.api.field_behavior) = REQUIRED ];
+  string remarks = 3 [ (google.api.field_behavior) = REQUIRED ];
+  string initiator = 4 [ (google.api.field_behavior) = REQUIRED ];
+  string security_credential = 5;
+  string queue_timeout_url = 6;
+  string result_url = 7;
+  string transaction_id = 8;
+  string occassion = 9;
+  bool synchronous = 10;
+}
+
+message QueryResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {title : "QueryResponse" description : "Mpesa Query response"}
+  };
+
+  string originator_conversion_id = 1;
+  string conversion_id = 2;
+  string response_description = 3;
+  bool success = 4;
+}
+
+message QueryAccountBalanceRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "QueryAccountBalanceRequest"
+      description : "Request to query for account balance"
+    }
+  };
+
+  enum IdentifierType {
+    QUERY_ACCOUNT_UNSPECIFIED = 0;
+    MSISDN = 1;
+    TILL_NUMBER = 2;
+    ORGANIZATION_SHORT_CODE = 3;
+  }
+
+  IdentifierType identifier_type = 1 [ (google.api.field_behavior) = REQUIRED ];
+  int64 party_a = 2 [ (google.api.field_behavior) = REQUIRED ];
+  string remarks = 3 [ (google.api.field_behavior) = REQUIRED ];
+  string initiator_id = 4 [ (google.api.field_behavior) = REQUIRED ];
+  string request_id = 5;
+  bool synchronous = 6;
+}
+
+message QueryAccountBalanceResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "QueryAccountBalanceResponse"
+      description : "Response containing account balance data"
+    }
+  };
+
+  int64 party = 1;
+  float working_account_funds = 2;
+  float utility_account_funds = 3;
+  float charges_paid_funds = 4;
+  string request_id = 5;
+  string initiator_id = 6;
+  bool completed = 7;
+}
+
+message ReverseTransactionRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema : {
+      title : "ReverseTransactionRequest"
+      description : "Request to reverse mpesa transaction"
+    }
+  };
+
+  int64 receiver_type = 1 [ (google.api.field_behavior) = REQUIRED ];
+  int32 short_code = 2 [ (google.api.field_behavior) = REQUIRED ];
+  string remarks = 3 [ (google.api.field_behavior) = REQUIRED ];
+  string transaction_id = 4 [ (google.api.field_behavior) = REQUIRED ];
+  string occassion = 5;
+  string request_id = 6;
+  string initiator_id = 7 [ (google.api.field_behavior) = REQUIRED ];
+  bool synchronous = 8;
+}

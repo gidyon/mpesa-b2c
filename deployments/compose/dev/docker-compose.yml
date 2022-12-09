@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0.18
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - /home/gideon/mysql-storage/mpesab2c/:/var/lib/mysql
+    env_file:
+      - ./.mysql.env
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    env_file:
+      - ./.redis.env
