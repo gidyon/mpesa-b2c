@@ -2,3 +2,4 @@ test
 service
 *.yaml
 *.yml
+.env
