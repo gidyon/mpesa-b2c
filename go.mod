@@ -1,4 +1,4 @@
-module github.com/gidyon/mpesab2c
+module github.com/gidyon/mpesa-b2c
 
 go 1.18
 
