@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	b2c "github.com/gidyon/mpesab2c/pkg/api/b2c/v1"
+	b2c "github.com/gidyon/mpesa-b2c/pkg/api/b2c/v1"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )

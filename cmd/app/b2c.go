@@ -12,15 +12,15 @@ import (
 	"encoding/json"
 
 	auth "github.com/gidyon/gomicro/pkg/grpc/auth"
-	b2c_app_v1 "github.com/gidyon/mpesab2c/internal/b2c/v1"
-	b2c_v1 "github.com/gidyon/mpesab2c/pkg/api/b2c/v1"
-	"github.com/gidyon/mpesab2c/pkg/utils/httputils"
+	b2c_app_v1 "github.com/gidyon/mpesa-b2c/internal/b2c/v1"
+	b2c_v1 "github.com/gidyon/mpesa-b2c/pkg/api/b2c/v1"
+	"github.com/gidyon/mpesa-b2c/pkg/utils/httputils"
 	"github.com/go-redis/redis/v8"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 	"gorm.io/gorm"
 
-	"github.com/gidyon/mpesab2c/pkg/payload"
+	"github.com/gidyon/mpesa-b2c/pkg/payload"
 	"google.golang.org/protobuf/proto"
 )
 

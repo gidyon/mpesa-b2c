@@ -16,9 +16,9 @@ import (
 
 	auth "github.com/gidyon/gomicro/pkg/grpc/auth"
 	"github.com/gidyon/gomicro/utils/errs"
-	b2c "github.com/gidyon/mpesab2c/pkg/api/b2c/v1"
-	"github.com/gidyon/mpesab2c/pkg/utils/formatutil"
-	"github.com/gidyon/mpesab2c/pkg/utils/httputils"
+	b2c "github.com/gidyon/mpesa-b2c/pkg/api/b2c/v1"
+	"github.com/gidyon/mpesa-b2c/pkg/utils/formatutil"
+	"github.com/gidyon/mpesa-b2c/pkg/utils/httputils"
 	"github.com/gidyon/mpesapayments/pkg/payload"
 	"github.com/go-redis/redis/v8"
 	"google.golang.org/grpc/codes"

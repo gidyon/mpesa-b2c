@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gidyon/mpesab2c/pkg/utils/httputils"
+	"github.com/gidyon/mpesa-b2c/pkg/utils/httputils"
 )
 
 func (b2cAPI *b2cAPIServer) updateAccessTokenWorker(ctx context.Context, dur time.Duration) {

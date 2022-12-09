@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package gidyon.mpesa.b2c;
 
-option go_package = "github.com/gidyon/mpesab2c/pkg/api/b2c/v1;b2c_v1";
+option go_package = "github.com/gidyon/mpesa-b2c/pkg/api/b2c/v1;b2c_v1";
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
