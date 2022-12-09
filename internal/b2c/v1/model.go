@@ -40,7 +40,7 @@ type Payment struct {
 	MpesaReceiptId      sql.NullString `gorm:"index;type:varchar(50);unique"`
 	ReceiverPublicName  string         `gorm:"type:varchar(50)"`
 
-	B2CStatus string `gorm:"index;type:varchar(30)"`
+	B2CStatus string `gorm:"index;type:varchar(30);column:b2c_status"`
 	Source    string `gorm:"index;type:varchar(30)"`
 	Tag       string `gorm:"index;type:varchar(30)"`
 	Succeeded string `gorm:"index;type:enum('YES','NO', 'UNKNOWN');default:NO"`
